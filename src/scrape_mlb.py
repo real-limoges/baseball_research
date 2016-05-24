@@ -85,11 +85,12 @@ def extract_days_games(year, month, day):
 
         return None, None
 
+
 def extract_info(URL, col, key, date):
     last_date = col.find().sort([('date', pymongo.DESCENDING)])
     if last_date.count() == 0 or date > last_date.limit(1)[0]['date']:
         try:
-            req= urllib2.Request(URL)
+            req = urllib2.Request(URL)
             res = urllib2.urlopen(req)
             sleep(0.2)
 
@@ -111,11 +112,11 @@ def extract_info(URL, col, key, date):
                 pprint_log_ex(e, level=30)
                 return None, None
 
-            #Other Errors are more important to be logged
+            # Other Errors are more important to be logged
             else:
                 msg = " Error Code : {}".format(e.code)
                 pprint_log_ex(e, level=40, opt_string=msg)
-                
+
                 sleep(5.)
                 extract_game_info(URL, game)
                 errors.append(URL)
@@ -126,6 +127,7 @@ def extract_info(URL, col, key, date):
             pprint_log_ex(ex, level=50, opt_string=msg)
 
             return None
+
 
 def extract_game_info(URL, game, date):
     '''
@@ -140,13 +142,10 @@ def extract_game_info(URL, game, date):
     updated_URL_innings = URL + "/" + game.strip() + '/inning/inning_all.xml'
 
     last_date_g = games.find().sort([('date', pymongo.DESCENDING)])
-    last_date_i = innings.find().sort([('date': pymongo.DESCENDING)]) 
+    last_date_i = innings.find().sort([('date': pymongo.DESCENDING)])
 
     if date > last_date_g:
         extract_info(updated_URL_game_info, games, 'game', date)
-    
+
     if date > last_date_i:
         extract_info(updated_URL_innings, innings, 'game', date)
-
-
-

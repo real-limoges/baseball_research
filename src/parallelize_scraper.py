@@ -37,12 +37,12 @@ class DownloadWorker(Thread):
         while True:
             date = self.queue.get()
             print date
-            
+
             games, URL = extract_days_games(date.year, date.month, date.day)
             if games is not None:
                 for game in games:
                     extract_game_info(URL, str(game), date)
-            
+
             self.queue.task_done()
             sleep(0.5)
 
