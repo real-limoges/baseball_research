@@ -22,8 +22,7 @@ logging.basicConfig(filename='../logs/logging.log')
 
 from database_info import get_baseball_handles
 
-database = 'baseball'
-games, innings = get_baseball_handles(database)
+games, innings = get_baseball_handles()
 
 
 def pprint_log_suc(msg):
@@ -43,7 +42,7 @@ def pprint_log_ex(ex, level, opt_string=''):
             String (Optional Extra)
     OUTPUT : None
 
-    Outputs a message to the appropriate logger.
+    Outputs an error message to the appropriate logger.
     '''
 
     template = "An exception of type {0} occured. Arguments:\n{1!r}"
@@ -105,17 +104,23 @@ def extract_info(URL, col, key, date):
             return None
 
         except urllib2.HTTPError as e:
-                # If 404, the date had no games
+            # 404 means no games were played that day, and its in the
+            # off season
             if e.code == 404:
+                msg = "on " + URL[-25:]
                 pprint_log_ex(e, level=30)
                 return None, None
+
+            #Other Errors are more important to be logged
             else:
                 msg = " Error Code : {}".format(e.code)
                 pprint_log_ex(e, level=40, opt_string=msg)
+                
                 sleep(5.)
                 extract_game_info(URL, game)
                 errors.append(URL)
 
+        # Critical Exception - Connection Error, etc...
         except Exception as ex:
             msg = "on " + URL[-25:]
             pprint_log_ex(ex, level=50, opt_string=msg)
@@ -134,8 +139,14 @@ def extract_game_info(URL, game, date):
     updated_URL_game_info = URL + "/" + game.strip() + '/game.xml'
     updated_URL_innings = URL + "/" + game.strip() + '/inning/inning_all.xml'
 
-    extract_info(updated_URL_game_info, games, 'game', date)
-    extract_info(updated_URL_innings, innings, 'game', date)
+    last_date_g = games.find().sort([('date', pymongo.DESCENDING)])
+    last_date_i = innings.find().sort([('date': pymongo.DESCENDING)]) 
+
+    if date > last_date_g:
+        extract_info(updated_URL_game_info, games, 'game', date)
+    
+    if date > last_date_i:
+        extract_info(updated_URL_innings, innings, 'game', date)
 
 
 

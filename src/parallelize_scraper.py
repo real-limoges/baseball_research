@@ -51,6 +51,7 @@ if __name__ == '__main__':
 
     games, innings = get_baseball_handles(database)
 
+    # Determines the dates to look for.
     if games.find().count() == 0 and innings.find().count() == 0:
         start = dt.datetime(2008, 0o1, 0o1)
     else:
@@ -60,8 +61,8 @@ if __name__ == '__main__':
             [('date', pymongo.DESCENDING)]).limit(1)[0]['date']
         start = min(games_min, innings_min)
 
-    today = dt.datetime.today() - dt.timedelta(days=1)
-    dates = date_range(start, today)
+    yesterday = dt.datetime.today() - dt.timedelta(days=1)
+    dates = date_range(start, yesterday)
 
     dates_q = Queue()
     [dates_q.put(date) for date in dates]
