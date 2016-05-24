@@ -37,17 +37,18 @@ class DownloadWorker(Thread):
         while True:
             date = self.queue.get()
             print date
+            
             games, URL = extract_days_games(date.year, date.month, date.day)
             if games is not None:
                 for game in games:
                     extract_game_info(URL, str(game), date)
+            
             self.queue.task_done()
             sleep(0.5)
 
 
 if __name__ == '__main__':
 
-    database = 'baseball'
     games, innings = get_baseball_handles(database)
 
     if games.find().count() == 0 and innings.find().count() == 0:

@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 
-
-def get_baseball_handles(database):
+def get_baseball_handles():
     client = MongoClient()
     db = client[database]
 
-    return [db['games'], db['innings']]
+    return (db['games'], db['innings'])
